@@ -86,7 +86,6 @@ function join(){
 		dc = evt.channel;
 		
 		dc.onopen = next;
-		
 	};
 	
 	function wait(){
@@ -131,17 +130,8 @@ function next(){
 		}
 	}, 50);
 	
-	document.body.onbeforeunload = function(){
-		dc.close();
-		return null;
-	};
-	
 	dc.onmessage = function(evt){
 		area.value = content = evt.data.substr(1);
-	};
-	
-	dc.onclose = function(e){
-		alert("The other person left!");
 	};
 }
 
