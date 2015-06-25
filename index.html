@@ -1,0 +1,139 @@
+<p id='info'></p>
+<textarea id="area"></textarea>
+<button id="button">Continue</button>
+
+<script>
+var info = document.querySelector("#info");
+var area = document.querySelector("#area");
+var button = document.querySelector("#button");
+
+if(!webkitRTCPeerConnection){ alert("No webrtc support!"); }
+
+var servers = {iceServers: [{url: "stun:stun.l.google.com:19302"}]};
+var dc;
+
+info.innerText = "Welcome!  Type in 0 to create a room or 1 to join a room.  Then click continue.";
+button.onclick = function(){
+	if(area.value == "0"){
+		create();
+		//button.onclick = null;
+	}
+	if(area.value == "1"){
+		join();
+		//button.onclick = null;
+	}
+};
+
+function create(){
+	var pc = new webkitRTCPeerConnection(servers);
+	
+	pc.onicecandidate = function(evt){
+		console.log(evt);
+		if(!evt.candidate){
+			info.innerText = "Send this over to another person then click continue.";
+			area.value = JSON.stringify(pc.localDescription);
+			button.onclick = receiveAnswer;
+		}
+	};
+	
+	function processAnswer(){
+		button.onclick = null;
+		info.innerText = "";
+		var answer = new RTCSessionDescription(JSON.parse(area.value));
+		area.value = "";
+		
+		pc.setRemoteDescription(answer);
+	}
+	
+	function receiveAnswer(){
+		info.innerText = "Paste in answer from other person. Then click continue.";
+		area.value = "";
+		button.onclick = processAnswer;
+	}
+	
+	function createLocalOffer(){
+		pc.createOffer(function(desc){
+			console.log(desc);
+			pc.setLocalDescription(desc);
+		}, function(){});
+	}
+	
+	function setupDataChannel(){
+		dc = pc.createDataChannel("test", {reliable: true});
+		
+		dc.onopen = next;
+	}
+	
+	info.innerText = "Loading...";
+	
+	setupDataChannel();
+	createLocalOffer();
+}
+
+function join(){
+	var pc = new webkitRTCPeerConnection(servers);
+	
+	pc.onicecandidate = function(evt){
+		console.log(evt);
+		if(!evt.candidate){
+			info.innerText = "Send this over to another person then click continue.";
+			area.value = JSON.stringify(pc.localDescription);
+			button.onclick = wait;
+		}
+	};
+	
+	pc.ondatachannel = function(evt){
+		dc = evt.channel;
+		
+		dc.onopen = next;
+		
+	};
+	
+	function wait(){
+		info.innerText = "Waiting...";
+		area.value = "";
+		button.onclick = null;
+	}
+	
+	function processOffer(){
+		info.innerText = "Processing...";
+		var offer = new RTCSessionDescription(JSON.parse(area.value));
+		area.value = "";
+		button.onclick = null;
+		
+		console.log(offer);
+		pc.setRemoteDescription(offer);
+		pc.createAnswer(function(desc){
+			pc.setLocalDescription(desc);
+			console.log(desc);
+		});
+	}
+	
+	function acceptOffer(){
+		info.innerText = "Paste in offer from other person then click continue.";
+		area.value = "";
+		button.onclick = processOffer;
+	}
+	
+	acceptOffer();
+}
+
+function next(){
+	info.innerText = "Now when you type something in the textbox it will appear on the other persons side.";
+	area.value = "";
+	button.onclick = null;
+	var content = "";
+	
+	setInterval(function(){
+		if(area.value != content){
+			content = area.value;
+			dc.send("a"+content);
+		}
+	}, 50);
+	
+	dc.onmessage = function(evt){
+		area.value = content = evt.data.substr(1);
+	};
+}
+
+</script>
