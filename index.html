@@ -148,7 +148,13 @@ function next(){
 	}, 50);
 	
 	dc.onmessage = function(evt){
+		let bs = area.selectionStart
+		let be = area.selectionEnd
+		let bd = area.selectionDirection
 		area.value = content = evt.data.substr(1);
+		area.selectionStart = bs
+		area.selectionEnd = be
+		area.selectionnDirection = bd
 	};
 }
 
