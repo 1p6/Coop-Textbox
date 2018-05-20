@@ -12,6 +12,7 @@ if(!rtcPeerConnection){ alert("No webrtc support!"); }
 
 var servers = {iceServers: [{urls: "stun:stun3.l.google.com:19302"}]};
 var dc;
+var pc;
 
 info.innerText = "Welcome!  Type in 0 to create a room or 1 to join a room.  Then click continue.";
 button.onclick = function(){
@@ -27,7 +28,7 @@ button.onclick = function(){
 area.value = '';
 
 function create(){
-	var pc = new rtcPeerConnection(servers);
+	pc = new rtcPeerConnection(servers);
 	
 	pc.onicecandidate = function(evt){
 		console.log(evt);
@@ -44,6 +45,12 @@ function create(){
 			area.value = ""
 			button.onclick = null
 		}
+	};
+	
+	pc.onerror = function(e){
+		info.innerText = "Error!  Refresh the page and try again!";
+		area.value = ""
+		button.onclick = null
 	};
 	
 	function processAnswer(){
@@ -81,7 +88,7 @@ function create(){
 }
 
 function join(){
-	var pc = new rtcPeerConnection(servers);
+	pc = new rtcPeerConnection(servers);
 	
 	pc.onicecandidate = function(evt){
 		console.log(evt);
@@ -104,6 +111,12 @@ function join(){
 			area.value = ""
 			button.onclick = null
 		}
+	};
+	
+	pc.onerror = function(e){
+		info.innerText = "Error!  Refresh the page and try again!";
+		area.value = ""
+		button.onclick = null
 	};
 	
 	function wait(){
