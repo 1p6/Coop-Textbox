@@ -10,18 +10,18 @@ var rtcPeerConnection = typeof RTCPeerConnection === 'undefined' ? webkitRTCPeer
 
 if(!rtcPeerConnection){ alert("No webrtc support!"); }
 
-var servers = {iceServers: [{url: "stun:stun.l.google.com:19302"}]};
+var servers = {iceServers: [{urls: "stun:stun3.l.google.com:19302"}]};
 var dc;
 
 info.innerText = "Welcome!  Type in 0 to create a room or 1 to join a room.  Then click continue.";
 button.onclick = function(){
 	if(area.value == "0"){
 		create();
-		//button.onclick = null;
+		button.onclick = null;
 	}
 	if(area.value == "1"){
 		join();
-		//button.onclick = null;
+		button.onclick = null;
 	}
 };
 
@@ -32,7 +32,7 @@ function create(){
 		console.log(evt);
 		if(!evt.candidate){
 			info.innerText = "Send this over to another person then click continue.";
-			area.value = JSON.stringify(pc.localDescription);
+			area.value = JSON.stringify(pc.localDescription.sdp);
 			button.onclick = receiveAnswer;
 		}
 	};
@@ -40,7 +40,7 @@ function create(){
 	function processAnswer(){
 		button.onclick = null;
 		info.innerText = "";
-		var answer = new RTCSessionDescription(JSON.parse(area.value));
+		var answer = new RTCSessionDescription({type: 'answer', sdp: area.value});
 		area.value = "";
 		
 		pc.setRemoteDescription(answer);
@@ -60,7 +60,7 @@ function create(){
 	}
 	
 	function setupDataChannel(){
-		dc = pc.createDataChannel("test", {reliable: true});
+		dc = pc.createDataChannel("test");
 		
 		dc.onopen = next;
 	}
@@ -78,7 +78,7 @@ function join(){
 		console.log(evt);
 		if(!evt.candidate){
 			info.innerText = "Send this over to another person then click continue.";
-			area.value = JSON.stringify(pc.localDescription);
+			area.value = JSON.stringify(pc.localDescription.sdp);
 			button.onclick = wait;
 		}
 	};
@@ -97,7 +97,7 @@ function join(){
 	
 	function processOffer(){
 		info.innerText = "Processing...";
-		var offer = new RTCSessionDescription(JSON.parse(area.value));
+		var offer = new RTCSessionDescription({type: 'offer', sdp: area.value});
 		area.value = "";
 		button.onclick = null;
 		
