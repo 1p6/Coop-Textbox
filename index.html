@@ -106,7 +106,7 @@ function join(){
 		pc.createAnswer(function(desc){
 			pc.setLocalDescription(desc);
 			console.log(desc);
-		});
+		}, function(){});
 	}
 	
 	function acceptOffer(){
