@@ -37,10 +37,12 @@ function create(){
 		}
 	};
 	
-	pc.onerror = function(e){
-		info.innerText = "Error!  Refresh the page and try again!";
-		area.value = ""
-		button.onclick = null
+	pc.oniceconnectionstatechange = function(e){
+		if(pc.iceConnectionState === 'failed'){
+			info.innerText = "Error!  Refresh the page and try again!";
+			area.value = ""
+			button.onclick = null
+		}
 	};
 	
 	function processAnswer(){
@@ -95,10 +97,12 @@ function join(){
 		dc.onopen = next;
 	};
 	
-	pc.onerror = function(e){
-		info.innerText = "Error!  Refresh the page and try again!";
-		area.value = ""
-		button.onclick = null
+	pc.oniceconnectionstatechange = function(e){
+		if(pc.iceConnectionState === 'failed'){
+			info.innerText = "Error!  Refresh the page and try again!";
+			area.value = ""
+			button.onclick = null
+		}
 	};
 	
 	function wait(){
