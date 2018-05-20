@@ -16,12 +16,12 @@ var dc;
 info.innerText = "Welcome!  Type in 0 to create a room or 1 to join a room.  Then click continue.";
 button.onclick = function(){
 	if(area.value == "0"){
+		button.onclick = null;
 		create();
-		//button.onclick = null;
 	}
 	if(area.value == "1"){
+		button.onclick = null;
 		join();
-		//button.onclick = null;
 	}
 };
 area.value = '';
